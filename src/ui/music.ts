@@ -2,7 +2,8 @@
 // crackle, sidechained pad, swung keys. Layer gains crossfade with game phase
 // (menu / playing / boss / shop). Seeded per run, never touching run.rng.
 //
-// Authored-track drop-in: place a seamless loop at public/music/theme.ogg and
+// Authored-track drop-in: place a seamless loop at public/music/theme.mp3 (or
+// theme.ogg) and
 // it replaces the generative layers (phase still drives a lowpass + gain).
 // Suno prompt that matches the intended feel:
 //   "lo-fi hip hop instrumental, 84 BPM, A minor, warm dusty vinyl crackle,
@@ -86,15 +87,18 @@ export function setSeed(seed: number): void {
 
 function probeAuthored(): Promise<AudioBuffer | null> {
   authoredProbe ??= (async () => {
-    try {
-      const res = await fetch("/music/theme.ogg");
-      if (!res.ok || !res.headers.get("content-type")?.startsWith("audio")) return null;
-      const ac = ensureCtx();
-      if (!ac) return null;
-      return await ac.decodeAudioData(await res.arrayBuffer());
-    } catch {
-      return null;
+    for (const name of ["theme.mp3", "theme.ogg"]) {
+      try {
+        const res = await fetch(`${import.meta.env.BASE_URL}music/${name}`);
+        if (!res.ok || !res.headers.get("content-type")?.startsWith("audio")) continue;
+        const ac = ensureCtx();
+        if (!ac) return null;
+        return await ac.decodeAudioData(await res.arrayBuffer());
+      } catch {
+        /* try the next format */
+      }
     }
+    return null;
   })();
   return authoredProbe;
 }

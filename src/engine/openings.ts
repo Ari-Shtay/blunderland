@@ -31,7 +31,7 @@ export const OPENINGS: Record<OpeningId, OpeningDef> = {
   kingsGambit: def({
     id: "kingsGambit",
     name: "King's Gambit",
-    desc: "Start penniless — but with a random rare Joker in hand.",
+    desc: "Start penniless, but with a random rare Joker in hand.",
     emoji: "🤴",
     startingMoney: 0,
     startingRareJoker: true,

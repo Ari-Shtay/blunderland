@@ -445,7 +445,7 @@ export function App() {
               setSwapMode(!swapMode);
             }}
           >
-            {swapMode ? "Swapping — pick a piece" : `Swap (${blind?.swapsLeft ?? 0})`}
+            {swapMode ? "Swapping: pick a piece" : `Swap (${blind?.swapsLeft ?? 0})`}
           </button>
           <button class="btn ghost" onClick={() => setScreen("menu")}>
             Menu
@@ -456,7 +456,7 @@ export function App() {
           <AudioSettings inline />
         </div>
         {mustSwap(run) && !replaying && (
-          <div class="must-swap-hint">No legal moves — swap a piece to continue</div>
+          <div class="must-swap-hint">No legal moves. Swap a piece to continue.</div>
         )}
         <div class="hud-popups">
           {popups

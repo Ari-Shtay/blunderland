@@ -108,7 +108,7 @@ export function OpeningPicker({ onStart, onBack }: OpeningPickerProps) {
           placeholder="random"
           value={seedText}
           onInput={(e) => setSeedText((e.target as HTMLInputElement).value)}
-          title="A number or any phrase — the same seed deals the same run"
+          title="A number or any phrase. The same seed deals the same run."
         />
       </div>
 

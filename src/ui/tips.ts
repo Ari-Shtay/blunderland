@@ -21,23 +21,23 @@ export type TipId =
 
 export const TIP_TEXT: Record<TipId, string> = {
   arrival:
-    "Oh! A visitor! I am the White Knight — I shall accompany you and fall off things so you needn't.",
+    "Oh! A visitor! I am the White Knight. I shall accompany you and fall off things so you needn't.",
   goal:
-    "Four moves to reach the target. Each move scores its piece's chips — a capture adds the bounty's worth — all of it times your Mult. The glinting gold square and the center pay bonus chips.",
+    "Four moves to reach the target. Each move scores its piece's chips, a capture adds the bounty's worth, and the whole sum is times your Mult. The glinting gold square and the center pay bonus chips.",
   boss:
-    "A boss blind bends the rules — the red print says how. I post it on the left a whole ante ahead, so you can pack accordingly.",
+    "A boss blind bends the rules; the red print says how. I post it on the left a whole ante ahead, so you can pack accordingly.",
   shop:
-    `The Night Market! Jokers do the real scoring — ${JOKER_SLOTS} slots, and I'll buy one back at half price. Keep money banked: every $${INTEREST_PER} held pays $1 interest.`,
+    `The Night Market! Jokers do the real scoring: ${JOKER_SLOTS} slots, and I'll buy one back at half price. Keep money banked, for every $${INTEREST_PER} held pays $1 interest.`,
   mult:
-    "One more market secret: every point is chips TIMES Mult, and blinds outgrow bare chips by the third ante. A Joker that pays Mult is not a luxury — never leave the early market without one.",
+    "One more market secret: every point is chips TIMES Mult, and blinds outgrow bare chips by the third ante. A Joker that pays Mult is not a luxury. Never leave the early market without one.",
   royalHabit:
-    `Woah, woah — steady! Her Majesty earns a mere ${BASE_CHIPS.Q} a move. See the little numbers? The humble folk are paid treble.`,
+    `Woah, woah, steady! Her Majesty earns a mere ${BASE_CHIPS.Q} a move. See the little numbers? The humble folk are paid treble.`,
   underdog:
-    `Mind the ladder: a pawn's strike earns ${BASE_CHIPS.P} chips, Her Majesty's a mere ${BASE_CHIPS.Q} — and quiet steps pay but half. The numbers on each square show true totals; I'll take the number-cards away once you've the knack.`,
+    `Mind the ladder: a pawn's strike earns ${BASE_CHIPS.P} chips, Her Majesty's a mere ${BASE_CHIPS.Q}, and quiet steps pay but half. The numbers on each square show true totals; I'll take the number-cards away once you've the knack.`,
   spent:
-    "A piece that moves is spent until the next blind — it still blocks squares, mind. Four moves want four fresh pieces.",
+    "A piece that moves is spent until the next blind. It still blocks squares, mind. Four moves want four fresh pieces.",
   promotion:
-    "The far rank crowns a pawn into a Queen — a grander steed, humbler chips.",
+    "The far rank crowns a pawn into a Queen: a grander steed, humbler chips.",
   swap:
     "Pick a piece to bench it for the next in your bag. The newcomer arrives fresh, even if the benched one was spent.",
 };

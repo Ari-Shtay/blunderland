@@ -47,10 +47,10 @@ export function Hud({ run, animScore, liveChips, liveMult, replaying }: HudProps
       )}
 
       {run.pendingPosters.length > 0 && (
-        <div class="hud-posters" title="Banked Wanted Posters — they fire on the blinds ahead">
+        <div class="hud-posters" title="Banked Wanted Posters. They fire on the blinds ahead.">
           <span class="label">Posters</span>
           {run.pendingPosters.map((id, i) => (
-            <span key={`${id}-${i}`} class="hud-poster" title={`${POSTERS[id].name} — ${POSTERS[id].desc}`}>
+            <span key={`${id}-${i}`} class="hud-poster" title={`${POSTERS[id].name}: ${POSTERS[id].desc}`}>
               {POSTERS[id].emoji}
             </span>
           ))}
@@ -58,9 +58,9 @@ export function Hud({ run, animScore, liveChips, liveMult, replaying }: HudProps
       )}
 
       {run.patents.length > 0 && (
-        <div class="hud-patents" title="Patents — the Knight's inventions">
+        <div class="hud-patents" title="Patents: the Knight's inventions">
           {run.patents.map((id) => (
-            <span key={id} class="hud-patent" title={`${PATENTS[id].name} — ${PATENTS[id].desc}`}>
+            <span key={id} class="hud-patent" title={`${PATENTS[id].name}: ${PATENTS[id].desc}`}>
               {PATENTS[id].emoji}
             </span>
           ))}
@@ -136,7 +136,7 @@ export function Hud({ run, animScore, liveChips, liveMult, replaying }: HudProps
 
       {!isBoss && (
         <div class="hud-boss-preview">
-          <span class="label">Upcoming boss — blind 3</span>
+          <span class="label">Upcoming boss (blind 3)</span>
           <div class="preview-name">{boss.name}</div>
           <div class="preview-desc">{boss.desc}</div>
         </div>

@@ -335,7 +335,7 @@ export const JOKERS: Record<JokerId, JokerDef> = {
   nightrider: def({
     id: "nightrider",
     name: "Nightrider",
-    desc: "Knights never exhaust — they may move again and again.",
+    desc: "Knights never exhaust; they may move again and again.",
     emoji: "🌙",
     rarity: "uncommon",
     cost: 7,
@@ -399,7 +399,7 @@ export const JOKERS: Record<JokerId, JokerDef> = {
   perpetualMotion: def({
     id: "perpetualMotion",
     name: "Perpetual Motion",
-    desc: "Queens never exhaust — they may move again and again.",
+    desc: "Queens never exhaust; they may move again and again.",
     emoji: "♾️",
     rarity: "rare",
     cost: 10,

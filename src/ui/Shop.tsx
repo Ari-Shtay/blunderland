@@ -18,7 +18,7 @@ const ENH_INFO = {
   foiled: { name: "Foiled", desc: "+30 Chips when this piece scores (engraving)", icon: "✨" },
   etched: { name: "Etched", desc: "+3 Mult when this piece scores (engraving)", icon: "🗡️" },
   prismatic: { name: "Prismatic", desc: "×1.5 Mult when this piece scores (engraving)", icon: "🔮" },
-  phantom: { name: "Phantom", desc: "Counts as no piece — invisible to bag-size effects", icon: "👻" },
+  phantom: { name: "Phantom", desc: "Counts as no piece: invisible to bag-size effects", icon: "👻" },
 } as const;
 
 export interface ShopProps {

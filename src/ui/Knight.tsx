@@ -52,7 +52,7 @@ const TUMBLE_MS = 1250;
 
 const TIP_ACTIONS: Partial<Record<TipId, { label: string; prop: "onDeal" | "onArmSwap" }>> = {
   goal: { label: "Deal me in", prop: "onDeal" },
-  swap: { label: "Show me — arm a swap", prop: "onArmSwap" },
+  swap: { label: "Show me: arm a swap", prop: "onArmSwap" },
 };
 
 interface Hole {

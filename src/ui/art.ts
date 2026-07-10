@@ -10,7 +10,7 @@ export async function loadArtManifest(): Promise<void> {
   if (loaded) return;
   loaded = true;
   try {
-    const res = await fetch("/art/manifest.json");
+    const res = await fetch(`${import.meta.env.BASE_URL}art/manifest.json`);
     if (!res.ok || !res.headers.get("content-type")?.includes("json")) return;
     const paths = (await res.json()) as unknown;
     if (Array.isArray(paths)) {
@@ -26,5 +26,5 @@ export function hasArt(path: string): boolean {
 }
 
 export function artUrl(path: string): string {
-  return `/art/${path}`;
+  return `${import.meta.env.BASE_URL}art/${path}`;
 }

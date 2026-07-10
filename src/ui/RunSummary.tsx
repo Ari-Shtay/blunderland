@@ -34,7 +34,7 @@ export function RunSummary({
       `Blunderland run report`,
       `seed ${run.seed} · ${OPENINGS[run.openingId].name}${run.trial > 0 ? ` · ${TRIALS[run.trial - 1].name} (T${run.trial})` : ""}`,
       won
-        ? `WON all 8 antes${run.endless ? ` — Endless depth ${run.ante}` : ""}`
+        ? `WON all 8 antes${run.endless ? `, Endless depth ${run.ante}` : ""}`
         : `fell at ante ${run.ante}, ${["small", "big", "boss"][run.blindIdx]} blind${run.endless ? " (Endless)" : ""}`,
       `jokers: ${run.jokers.map((j) => JOKERS[j.id].name).join(", ") || "none"}`,
       run.patents.length ? `patents: ${run.patents.map((id) => PATENTS[id].name).join(", ")}` : "",

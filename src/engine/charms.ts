@@ -33,7 +33,7 @@ export const CHARMS: Record<CharmId, CharmDef> = {
   secondBreakfast: def({
     id: "secondBreakfast",
     name: "Second Breakfast",
-    desc: "Wake one spent piece — it may move again this blind.",
+    desc: "Wake one spent piece; it may move again this blind.",
     emoji: "🥐",
     cost: 4,
     phase: "playing",
@@ -114,7 +114,7 @@ export const CHARMS: Record<CharmId, CharmDef> = {
   cullingWrit: def({
     id: "cullingWrit",
     name: "Culling Writ",
-    desc: "Banish a bag piece, free — the ledger never hears of it.",
+    desc: "Banish a bag piece, free. The ledger never hears of it.",
     emoji: "🖋️",
     cost: 4,
     phase: "shop",
@@ -123,7 +123,7 @@ export const CHARMS: Record<CharmId, CharmDef> = {
   studyQuiet: def({
     id: "studyQuiet",
     name: "Study: Quiet Steps",
-    desc: "Level up Quiet moves — +8 Chips, +1 Mult forever.",
+    desc: "Level up Quiet moves: +8 Chips, +1 Mult forever.",
     emoji: "📗",
     cost: 4,
     phase: "any",
@@ -133,7 +133,7 @@ export const CHARMS: Record<CharmId, CharmDef> = {
   studyCapture: def({
     id: "studyCapture",
     name: "Study: The Hunt",
-    desc: "Level up Captures — +10 Chips, +1 Mult forever.",
+    desc: "Level up Captures: +10 Chips, +1 Mult forever.",
     emoji: "📕",
     cost: 4,
     phase: "any",
@@ -143,7 +143,7 @@ export const CHARMS: Record<CharmId, CharmDef> = {
   studyChain: def({
     id: "studyChain",
     name: "Study: Chains",
-    desc: "Level up Chain captures (2+ in a row) — +12 Chips, +2 Mult forever.",
+    desc: "Level up Chain captures (2+ in a row): +12 Chips, +2 Mult forever.",
     emoji: "📙",
     cost: 4,
     phase: "any",
@@ -153,7 +153,7 @@ export const CHARMS: Record<CharmId, CharmDef> = {
   studyFork: def({
     id: "studyFork",
     name: "Study: The Fork",
-    desc: "Level up Forks (attack 2+ bounties) — +12 Chips, +2 Mult forever.",
+    desc: "Level up Forks (attack 2+ bounties): +12 Chips, +2 Mult forever.",
     emoji: "📘",
     cost: 4,
     phase: "any",
@@ -163,7 +163,7 @@ export const CHARMS: Record<CharmId, CharmDef> = {
   studySlide: def({
     id: "studySlide",
     name: "Study: Long Rides",
-    desc: "Level up Long Slides (3+ squares) — +10 Chips, +1 Mult forever.",
+    desc: "Level up Long Slides (3+ squares): +10 Chips, +1 Mult forever.",
     emoji: "📓",
     cost: 4,
     phase: "any",
@@ -173,7 +173,7 @@ export const CHARMS: Record<CharmId, CharmDef> = {
   studyPromotion: def({
     id: "studyPromotion",
     name: "Study: Coronations",
-    desc: "Level up Promotions — +25 Chips, +3 Mult forever.",
+    desc: "Level up Promotions: +25 Chips, +3 Mult forever.",
     emoji: "📖",
     cost: 4,
     phase: "any",
