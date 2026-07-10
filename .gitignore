@@ -1,0 +1,7 @@
+*.log
+.DS_Store
+dist
+local-notes/
+node_modules
+public/art/
+reports/
