@@ -2437,3 +2437,94 @@ img.art-icon {
     flex-direction: column;
   }
 }
+
+/* ─── Opening crests: the pieces themselves as icons ─── */
+
+.opening-crest {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+}
+.opening-crest i {
+  display: block;
+  width: 40px;
+  height: 40px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: sepia(0.55) saturate(1.7) brightness(1.05)
+    drop-shadow(0 2px 5px rgba(0, 0, 0, 0.55));
+}
+.opening-crest i + i {
+  margin-left: -14px;
+}
+.opening-crest i.mirrored {
+  transform: scaleX(-1);
+  opacity: 0.45;
+  margin-left: -8px;
+}
+.opening-crest.locked-crest {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--ivory-dim);
+  opacity: 0.6;
+}
+
+/* ─── Audio button: visible, labeled ─── */
+
+.audio-settings .mute {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--gold-soft);
+  border-radius: 10px;
+  background: rgba(211, 168, 60, 0.06);
+  color: var(--gold);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.audio-settings .mute:hover {
+  background: rgba(211, 168, 60, 0.14);
+  box-shadow: 0 0 12px rgba(211, 168, 60, 0.25);
+}
+.audio-settings .mute.muted {
+  color: var(--ivory-dim);
+  border-color: var(--line);
+}
+.mute-glyph {
+  font-size: 1.05rem;
+}
+.audio-settings.inline .mute {
+  padding: 0.35rem 0.55rem;
+}
+.audio-pop input[type="range"] {
+  accent-color: var(--gold);
+  width: 140px;
+}
+
+/* ─── Hud wordmark is a button now ─── */
+
+.hud-title {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+.hud-title:hover span {
+  text-shadow: 0 0 14px rgba(211, 168, 60, 0.5);
+}
+
+/* ─── Shop exit row ─── */
+
+.shop-exit {
+  align-self: center;
+  display: flex;
+  gap: 0.7rem;
+  align-items: center;
+}

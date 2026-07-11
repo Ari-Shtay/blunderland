@@ -32,6 +32,7 @@ export interface ShopProps {
   onSellJoker: (i: number) => void;
   onBuyCharm: () => void;
   onBuyPatent: () => void;
+  onMenu: () => void;
   onUseCharm: (i: number, pieceId?: number) => void;
   onContinue: () => void;
 }
@@ -316,9 +317,14 @@ export function Shop(props: ShopProps) {
           </div>
         </div>
 
-        <button class="btn primary continue" onClick={props.onContinue}>
-          Next Blind →
-        </button>
+        <div class="shop-exit">
+          <button class="btn ghost" onClick={props.onMenu}>
+            Menu
+          </button>
+          <button class="btn primary continue" onClick={props.onContinue}>
+            Next Blind →
+          </button>
+        </div>
       </div>
     </div>
   );

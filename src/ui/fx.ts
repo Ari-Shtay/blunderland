@@ -316,8 +316,10 @@ export const sfx = {
     const b = bus();
     if (!b) return;
     const t = (b.context as AudioContext).currentTime;
-    const f = 420 * (1 + (Math.random() - 0.5) * 0.18);
-    tone(b, t, f, 0.045, "square", 0.02, f * 0.88);
+    // A-minor pentatonic: the chatter sits inside the soundtrack's key.
+    const SPEECH_NOTES = [220, 261.63, 293.66, 329.63, 392];
+    const f = SPEECH_NOTES[Math.floor(Math.random() * SPEECH_NOTES.length)] * 2;
+    tone(b, t, f, 0.05, "triangle", 0.06, f * 0.92);
   },
   /** Alternating hoof-falls for the knight's travels. */
   clipClop() {

@@ -5,6 +5,7 @@
 // The arrival cameo (once ever): he rides in, tumbles off, introduces himself.
 
 import { useEffect, useRef, useState } from "preact/hooks";
+import { duckMusic } from "./audio";
 import { sfx } from "./fx";
 import {
   clickLine,
@@ -350,6 +351,12 @@ export function Knight(props: KnightProps) {
     if (speechRef.current?.kind === "line") setSpeech(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.phaseKey]);
+
+  // One voice at a time: lessons duck the music while the Knight teaches.
+  useEffect(() => {
+    duckMusic(speech?.kind === "tip");
+    return () => duckMusic(false);
+  }, [speech]);
 
   // Non-tip lines wander off on their own after a while.
   useEffect(() => {

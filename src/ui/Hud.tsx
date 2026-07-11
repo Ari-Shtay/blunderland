@@ -17,9 +17,11 @@ export interface HudProps {
   liveChips: number;
   liveMult: number;
   replaying: boolean;
+  /** Clicking the wordmark walks home. */
+  onHome: () => void;
 }
 
-export function Hud({ run, animScore, liveChips, liveMult, replaying }: HudProps) {
+export function Hud({ run, animScore, liveChips, liveMult, replaying, onHome }: HudProps) {
   const blind = run.blind;
   const boss = BOSSES[bossFor(run)];
   const isBoss = run.blindIdx === 2;
@@ -27,9 +29,9 @@ export function Hud({ run, animScore, liveChips, liveMult, replaying }: HudProps
 
   return (
     <aside class="hud">
-      <div class="hud-title">
+      <button class="hud-title" onClick={onHome} title="Back to the menu">
         BLUNDER<span>LAND</span>
-      </div>
+      </button>
 
       <div class={`hud-ante${run.endless ? " endless" : ""}`}>
         <span class="label">{run.endless ? "Endless Night" : "Ante"}</span>

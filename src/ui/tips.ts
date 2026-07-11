@@ -117,7 +117,10 @@ export function activeTip(ctx: TipCtx): TipId | null {
     check("boss", phase === "blindIntro" && run.blindIdx === 2) ??
     check("shop", phase === "shop") ??
     check("mult", phase === "shop" && seen.has("shop")) ??
-    check("royalHabit", phase === "playing" && ctx.selectedType === "Q") ??
+    check(
+      "royalHabit",
+      phase === "playing" && ctx.selectedType === "Q" && !seen.has("underdog"),
+    ) ??
     check(
       "underdog",
       phase === "playing" && ctx.selectedType !== null && ctx.selectedType !== "Q",

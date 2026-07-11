@@ -8,8 +8,34 @@ import { OPENINGS, OPENING_IDS } from "../engine/openings";
 import { TRIALS } from "../engine/trials";
 import type { OpeningId } from "../engine/types";
 import { loadProgress } from "../save";
+import { hasArt } from "./art";
 import { ArtIcon } from "./ArtIcon";
 import { PIECE_URI } from "./pieces";
+
+// Each opening wears a crest of its own pieces instead of an emoji.
+const EMBLEMS: Record<OpeningId, { pieces: string[]; mirror?: boolean }> = {
+  classical: { pieces: ["wP"] },
+  kingsGambit: { pieces: ["wK"] },
+  pawnStorm: { pieces: ["wP", "wP", "wP"] },
+  blitz: { pieces: ["wN"] },
+  queensGambit: { pieces: ["wQ", "wQ"] },
+  fianchetto: { pieces: ["wB", "wB"] },
+  lookingGlass: { pieces: ["wQ"], mirror: true },
+};
+
+function Emblem({ id }: { id: OpeningId }) {
+  const e = EMBLEMS[id];
+  return (
+    <span class="opening-crest">
+      {e.pieces.map((p, i) => (
+        <i key={i} style={{ backgroundImage: `url('${PIECE_URI[p]}')` }} />
+      ))}
+      {e.mirror && (
+        <i class="mirrored" style={{ backgroundImage: `url('${PIECE_URI[e.pieces[0]]}')` }} />
+      )}
+    </span>
+  );
+}
 
 export interface OpeningPickerProps {
   onStart: (opening: OpeningId, trial: number, seed?: number) => void;
@@ -46,9 +72,11 @@ export function OpeningPicker({ onStart, onBack }: OpeningPickerProps) {
             >
               <div class="opening-art">
                 {locked ? (
-                  <span class="opening-emoji">🔒</span>
-                ) : (
+                  <span class="opening-crest locked-crest">?</span>
+                ) : hasArt(`openings/${id}.png`) ? (
                   <ArtIcon dir="openings" id={id} emoji={def.emoji} class="opening-emoji" />
+                ) : (
+                  <Emblem id={id} />
                 )}
               </div>
               <div class="opening-name">{def.name}</div>
@@ -114,7 +142,7 @@ export function OpeningPicker({ onStart, onBack }: OpeningPickerProps) {
 
       <div class="menu-actions">
         <button class="btn ghost" onClick={onBack}>
-          Back
+          Home
         </button>
         <button class="btn primary" onClick={begin}>
           Begin Run

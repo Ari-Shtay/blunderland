@@ -9,11 +9,12 @@ export interface AudioPrefs {
 }
 
 const KEY = "blunderland:audio:v1";
-const DEFAULTS: AudioPrefs = { muted: false, music: 0.7, sfx: 0.8 };
+const DEFAULTS: AudioPrefs = { muted: false, music: 0.55, sfx: 0.8 };
 
 let prefs: AudioPrefs = load();
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
+let duckFactor = 1;
 let sfxBusNode: GainNode | null = null;
 let musicBusNode: GainNode | null = null;
 const listeners = new Set<(p: AudioPrefs) => void>();
@@ -32,7 +33,7 @@ function applyGains() {
   if (!ctx || !master || !sfxBusNode || !musicBusNode) return;
   master.gain.value = prefs.muted ? 0 : 1;
   sfxBusNode.gain.value = prefs.sfx;
-  musicBusNode.gain.value = prefs.music;
+  musicBusNode.gain.value = prefs.music * duckFactor;
 }
 
 /** Create (or resume) the context. Call from inside a user gesture at least once. */
@@ -99,4 +100,14 @@ export function onPrefsChange(cb: (p: AudioPrefs) => void): () => void {
   return () => {
     listeners.delete(cb);
   };
+}
+
+/**
+ * Dialogue ducking: while the White Knight holds a lesson, the music steps
+ * back so one voice speaks at a time. Smoothly ramped, prefs-aware.
+ */
+export function duckMusic(on: boolean): void {
+  duckFactor = on ? 0.3 : 1;
+  if (!ctx || !musicBusNode) return;
+  musicBusNode.gain.setTargetAtTime(getPrefs().music * duckFactor, ctx.currentTime, 0.35);
 }

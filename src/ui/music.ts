@@ -240,7 +240,7 @@ function updateAuthoredPhase(ac: AudioContext): void {
       if (phaseTrack) releaseTrack(ac, phaseTrack, PHASE_XFADE);
       phaseTrack = makeTrack(ac, want, {
         loop: true,
-        gain: phase === "boss" ? 1 : 0.85,
+        gain: phase === "boss" ? 0.72 : 0.6,
         cutoff: 16000,
         fadeIn: PHASE_XFADE,
       });
@@ -459,10 +459,10 @@ function startScheduler(ac: AudioContext) {
 }
 
 const AUTHORED_MIX: Record<MusicPhase, { gain: number; cutoff: number }> = {
-  menu: { gain: 0.55, cutoff: 1800 },
-  playing: { gain: 0.85, cutoff: 12000 },
-  boss: { gain: 1, cutoff: 16000 },
-  shop: { gain: 0.6, cutoff: 2500 },
+  menu: { gain: 0.4, cutoff: 1800 },
+  playing: { gain: 0.6, cutoff: 12000 },
+  boss: { gain: 0.72, cutoff: 16000 },
+  shop: { gain: 0.45, cutoff: 2500 },
 };
 
 export function start(): void {

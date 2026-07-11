@@ -166,8 +166,12 @@ export function App() {
   };
 
   const dismissTip = (id: TipId) => {
-    markTipSeen(id);
-    setSeenTips(new Set([...seenTips, id]));
+    // The queen intercept and the underdog ladder teach the same fact —
+    // dismissing either retires both.
+    const ids: TipId[] =
+      id === "royalHabit" || id === "underdog" ? ["royalHabit", "underdog"] : [id];
+    ids.forEach(markTipSeen);
+    setSeenTips(new Set([...seenTips, ...ids]));
   };
 
   const beginRun = (r: RunState) => {
@@ -281,8 +285,18 @@ export function App() {
 
   const startNewRun = () => setScreen("openings");
 
-  const startRunWith = (opening: OpeningId, trial: number, seed?: number) =>
-    beginRun(newRun(seed ?? (Math.floor(Math.random() * 0xffffffff) || 1), { opening, trial }));
+  // Seed 230: two natural captures, then no legal moves at 76/100 — the
+  // Knight's swap lesson arrives exactly when swapping is the only way on.
+  const TUTORIAL_SEED = 230;
+  const startRunWith = (opening: OpeningId, trial: number, seed?: number) => {
+    const fresh = !seenTips.has("arrival");
+    const chosen =
+      seed ??
+      (fresh && opening === "classical" && trial === 0
+        ? TUTORIAL_SEED
+        : Math.floor(Math.random() * 0xffffffff) || 1);
+    beginRun(newRun(chosen, { opening, trial }));
+  };
 
   const handleCharmClick = (index: number) => {
     if (!run) return;
@@ -328,7 +342,7 @@ export function App() {
         <h1 class="menu-title">
           BLUNDER<span>LAND</span>
         </h1>
-        <p class="menu-tag">Four moves. One target. Break chess before it breaks you.</p>
+        <p class="menu-tag">The house plays black.</p>
         <div class="menu-actions">
           <button class="btn primary" onClick={startNewRun}>
             New Run
@@ -372,7 +386,7 @@ export function App() {
         )}
         <AudioSettings />
         <p class="menu-credit">
-          a chess roguelike · pieces by Colin M.L. Burnett (CC BY-SA 3.0) ·{" "}
+          made by Ari Shtaynberg · chess pieces by Colin M.L. Burnett (CC BY-SA 3.0) ·{" "}
           <a
             class="menu-feedback"
             href="https://github.com/Ari-Shtay/blunderland/issues"
@@ -410,6 +424,7 @@ export function App() {
         liveChips={tally.chips}
         liveMult={tally.mult}
         replaying={replaying}
+        onHome={() => setScreen("menu")}
       />
       <section class="stage">
         <JokerBar jokers={run.jokers} firing={firing} />
@@ -493,6 +508,7 @@ export function App() {
           onSellJoker={(i) => shopAction(sellJoker(run, i), sfx.sell)}
           onBuyCharm={() => shopAction(buyCharm(run), sfx.coin)}
           onBuyPatent={() => shopAction(buyPatent(run), sfx.coin)}
+          onMenu={() => setScreen("menu")}
           onUseCharm={(i, pieceId) => shopAction(useCharm(run, i, pieceId), sfx.coin)}
           onContinue={() => {
             const next = nextBlind(run);

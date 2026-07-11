@@ -32,8 +32,13 @@ export function AudioSettings({ inline = false }: { inline?: boolean }) {
 
   return (
     <div class={`audio-settings${inline ? " inline" : ""}`}>
-      <button class="mute" onClick={() => setOpen(!open)} title="Audio settings">
-        {prefs.muted ? "🔇" : "🔊"}
+      <button
+        class={`mute${prefs.muted ? " muted" : ""}`}
+        onClick={() => setOpen(!open)}
+        title="Audio settings"
+      >
+        <span class="mute-glyph">{prefs.muted ? "\u266A\u0338" : "\u266A"}</span>
+        {!inline && <span class="mute-label">{prefs.muted ? "muted" : "audio"}</span>}
       </button>
       {open && (
         <>
