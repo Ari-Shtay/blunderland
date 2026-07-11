@@ -2,9 +2,12 @@
 // crackle, sidechained pad, swung keys. Layer gains crossfade with game phase
 // (menu / playing / boss / shop). Seeded per run, never touching run.rng.
 //
-// Authored-track drop-in: place a seamless loop at public/music/theme.mp3 (or
-// theme.ogg) and
-// it replaces the generative layers (phase still drives a lowpass + gain).
+// Authored-track drop-in (public/music/, .mp3 or .ogg):
+//   theme.mp3, theme2.mp3, theme3.mp3  — rotate with crossfades during play
+//   shop.mp3                           — fades in for the Night Market
+//   boss.mp3                           — fades in for boss blinds
+// Any file may be absent: missing phase tracks fall back to filtering the
+// theme; zero theme files fall back to the generative layers below.
 // Suno prompt that matches the intended feel:
 //   "lo-fi hip hop instrumental, 84 BPM, A minor, warm dusty vinyl crackle,
 //    mellow Rhodes electric piano voicing jazzy minor seventh chords
@@ -67,9 +70,25 @@ let melodyIdx = 3;
 let layers: Layers | null = null;
 let padVoices: { gain: GainNode; oscs: OscillatorNode[] } | null = null;
 let lastChordKey = -1;
-let authored: AudioBuffer | null = null;
-let authoredProbe: Promise<AudioBuffer | null> | null = null;
-let authoredNodes: { src: AudioBufferSourceNode; gain: GainNode; filter: BiquadFilterNode } | null = null;
+interface AuthoredSet {
+  themes: AudioBuffer[];
+  shop: AudioBuffer | null;
+  boss: AudioBuffer | null;
+}
+interface ActiveTrack {
+  src: AudioBufferSourceNode;
+  gain: GainNode;
+  filter: BiquadFilterNode;
+}
+let authoredSet: AuthoredSet | null = null;
+let authoredProbe: Promise<AuthoredSet | null> | null = null;
+let themeTrack: ActiveTrack | null = null;
+let phaseTrack: ActiveTrack | null = null;
+let rotateTimer: ReturnType<typeof setTimeout> | null = null;
+let themeOrder: number[] = [];
+let themeCursor = 0;
+const THEME_XFADE = 1.5; // seconds of overlap between rotating themes
+const PHASE_XFADE = 0.8;
 
 function rand(): number {
   const [v, s] = next(rngState);
@@ -85,22 +104,132 @@ export function setSeed(seed: number): void {
   melodyIdx = 3;
 }
 
-function probeAuthored(): Promise<AudioBuffer | null> {
-  authoredProbe ??= (async () => {
-    for (const name of ["theme.mp3", "theme.ogg"]) {
-      try {
-        const res = await fetch(`${import.meta.env.BASE_URL}music/${name}`);
-        if (!res.ok || !res.headers.get("content-type")?.startsWith("audio")) continue;
-        const ac = ensureCtx();
-        if (!ac) return null;
-        return await ac.decodeAudioData(await res.arrayBuffer());
-      } catch {
-        /* try the next format */
-      }
+async function fetchTrack(base: string): Promise<AudioBuffer | null> {
+  for (const ext of ["mp3", "ogg"]) {
+    try {
+      const res = await fetch(`${import.meta.env.BASE_URL}music/${base}.${ext}`);
+      if (!res.ok || !res.headers.get("content-type")?.startsWith("audio")) continue;
+      const ac = ensureCtx();
+      if (!ac) return null;
+      return await ac.decodeAudioData(await res.arrayBuffer());
+    } catch {
+      /* try the next format */
     }
-    return null;
+  }
+  return null;
+}
+
+function probeAuthored(): Promise<AuthoredSet | null> {
+  authoredProbe ??= (async () => {
+    const [t1, t2, t3, shop, boss] = await Promise.all([
+      fetchTrack("theme"),
+      fetchTrack("theme2"),
+      fetchTrack("theme3"),
+      fetchTrack("shop"),
+      fetchTrack("boss"),
+    ]);
+    const themes = [t1, t2, t3].filter((b): b is AudioBuffer => b !== null);
+    if (themes.length === 0) return null;
+    return { themes, shop, boss };
   })();
   return authoredProbe;
+}
+
+// ---- authored playback: theme rotation + phase tracks ----
+
+function makeTrack(
+  ac: AudioContext,
+  buffer: AudioBuffer,
+  opts: { loop: boolean; gain: number; cutoff: number; fadeIn: number },
+): ActiveTrack {
+  const bus = musicBus()!;
+  const src = ac.createBufferSource();
+  src.buffer = buffer;
+  src.loop = opts.loop;
+  const filter = ac.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.value = opts.cutoff;
+  const gain = ac.createGain();
+  gain.gain.value = 0;
+  gain.gain.setTargetAtTime(opts.gain, ac.currentTime, Math.max(0.01, opts.fadeIn / 3));
+  src.connect(filter).connect(gain).connect(bus);
+  src.start();
+  return { src, gain, filter };
+}
+
+function releaseTrack(ac: AudioContext, track: ActiveTrack, fade: number): void {
+  track.gain.gain.setTargetAtTime(0, ac.currentTime, Math.max(0.01, fade / 3));
+  setTimeout(() => {
+    try {
+      track.src.stop();
+      track.gain.disconnect();
+    } catch {
+      /* already gone */
+    }
+  }, fade * 1000 + 400);
+}
+
+/** Shuffled rotation, reshuffled per cycle, never the same track twice in a
+ * row. Cosmetic randomness only — the run's rng is never touched. */
+function nextThemeIndex(count: number): number {
+  if (themeCursor >= themeOrder.length) {
+    const last = themeOrder[themeOrder.length - 1];
+    do {
+      themeOrder = [...Array(count).keys()].sort(() => Math.random() - 0.5);
+    } while (count > 1 && themeOrder[0] === last);
+    themeCursor = 0;
+  }
+  return themeOrder[themeCursor++];
+}
+
+function playNextTheme(ac: AudioContext): void {
+  const set = authoredSet;
+  if (!set || !running) return;
+  const buffer = set.themes[nextThemeIndex(set.themes.length)];
+  const map = AUTHORED_MIX[phase];
+  const phaseHasTrack = (phase === "shop" && set.shop) || (phase === "boss" && set.boss);
+  const old = themeTrack;
+  themeTrack = makeTrack(ac, buffer, {
+    loop: false,
+    gain: phaseHasTrack ? 0 : map.gain, // stay silent under a phase track
+    cutoff: map.cutoff,
+    fadeIn: THEME_XFADE,
+  });
+  if (old) releaseTrack(ac, old, THEME_XFADE);
+  if (rotateTimer) clearTimeout(rotateTimer);
+  rotateTimer = setTimeout(
+    () => playNextTheme(ac),
+    Math.max(1000, (buffer.duration - THEME_XFADE) * 1000),
+  );
+}
+
+/** Engage/release the dedicated shop/boss track for the current phase. */
+function updateAuthoredPhase(ac: AudioContext): void {
+  const set = authoredSet;
+  if (!set) return;
+  const want = phase === "shop" ? set.shop : phase === "boss" ? set.boss : null;
+  const t = ac.currentTime;
+  if (want) {
+    if (phaseTrack?.src.buffer !== want) {
+      if (phaseTrack) releaseTrack(ac, phaseTrack, PHASE_XFADE);
+      phaseTrack = makeTrack(ac, want, {
+        loop: true,
+        gain: phase === "boss" ? 1 : 0.85,
+        cutoff: 16000,
+        fadeIn: PHASE_XFADE,
+      });
+    }
+    themeTrack?.gain.gain.setTargetAtTime(0, t, PHASE_XFADE / 3);
+    return;
+  }
+  if (phaseTrack) {
+    releaseTrack(ac, phaseTrack, PHASE_XFADE);
+    phaseTrack = null;
+  }
+  // No dedicated track: the theme carries the phase via gain + lowpass.
+  const map = AUTHORED_MIX[phase];
+  themeTrack?.gain.gain.setTargetAtTime(map.gain, t, 0.6);
+  themeTrack?.filter.frequency.setTargetAtTime(map.cutoff, t, 0.6);
 }
 
 function buildLayers(ac: AudioContext): Layers {
@@ -303,22 +432,6 @@ function startScheduler(ac: AudioContext) {
   timer = setInterval(tick, LOOKAHEAD_MS);
 }
 
-function startAuthored(ac: AudioContext, buffer: AudioBuffer) {
-  const bus = musicBus()!;
-  const src = ac.createBufferSource();
-  src.buffer = buffer;
-  src.loop = true;
-  const filter = ac.createBiquadFilter();
-  filter.type = "lowpass";
-  const gain = ac.createGain();
-  src.connect(filter).connect(gain).connect(bus);
-  const map = AUTHORED_MIX[phase];
-  filter.frequency.value = map.cutoff;
-  gain.gain.value = map.gain;
-  src.start();
-  authoredNodes = { src, gain, filter };
-}
-
 const AUTHORED_MIX: Record<MusicPhase, { gain: number; cutoff: number }> = {
   menu: { gain: 0.55, cutoff: 1800 },
   playing: { gain: 0.85, cutoff: 12000 },
@@ -331,11 +444,13 @@ export function start(): void {
   const ac = ensureCtx();
   if (!ac) return;
   running = true;
-  void probeAuthored().then((buffer) => {
+  void probeAuthored().then((set) => {
     if (!running) return;
-    authored = buffer;
-    if (authored) startAuthored(ac, authored);
-    else {
+    authoredSet = set;
+    if (set) {
+      playNextTheme(ac);
+      updateAuthoredPhase(ac);
+    } else {
       layers = buildLayers(ac);
       startScheduler(ac);
     }
@@ -370,31 +485,26 @@ export function stop(fadeMs = 800): void {
       }
     }, fadeMs + 300);
   }
-  if (ac && authoredNodes) {
-    const n = authoredNodes;
-    n.gain.gain.setTargetAtTime(0, ac.currentTime, fade / 3);
-    setTimeout(() => {
-      try {
-        n.src.stop();
-        n.gain.disconnect();
-      } catch {
-        /* already gone */
-      }
-    }, fadeMs + 300);
+  if (rotateTimer) {
+    clearTimeout(rotateTimer);
+    rotateTimer = null;
+  }
+  if (ac) {
+    if (themeTrack) releaseTrack(ac, themeTrack, fade);
+    if (phaseTrack) releaseTrack(ac, phaseTrack, fade);
   }
   layers = null;
   padVoices = null;
-  authoredNodes = null;
+  themeTrack = null;
+  phaseTrack = null;
 }
 
 export function setPhase(p: MusicPhase): void {
   phase = p;
   const ac = ensureCtx();
   if (!ac) return;
-  if (authoredNodes) {
-    const map = AUTHORED_MIX[p];
-    authoredNodes.gain.gain.setTargetAtTime(map.gain, ac.currentTime, 0.6);
-    authoredNodes.filter.frequency.setTargetAtTime(map.cutoff, ac.currentTime, 0.6);
+  if (themeTrack || phaseTrack) {
+    updateAuthoredPhase(ac);
     return;
   }
   if (!layers) return;
