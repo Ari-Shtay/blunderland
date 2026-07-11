@@ -2570,3 +2570,85 @@ img.art-icon {
   width: auto;
   margin: 0 0.05em;
 }
+
+/* ─── The world behind the menu: a candlelit arena, not a void ─── */
+
+.menu-arena {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 170vmax;
+  height: 90vh;
+  transform: translateX(-50%) perspective(800px) rotateX(55deg);
+  transform-origin: center bottom;
+  background:
+    repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      rgba(211, 168, 60, 0.16) 0deg 90deg,
+      rgba(90, 120, 140, 0.09) 90deg 180deg
+    );
+  background-size: 11vmax 11vmax;
+  -webkit-mask-image: radial-gradient(ellipse 65% 90% at 50% 100%, #000 30%, transparent 78%);
+  mask-image: radial-gradient(ellipse 65% 90% at 50% 100%, #000 30%, transparent 78%);
+  opacity: 0.9;
+  pointer-events: none;
+  animation: arena-drift 40s linear infinite;
+}
+@keyframes arena-drift {
+  from { background-position: 0 0; }
+  to { background-position: 12vmax 0; }
+}
+
+.menu-motes {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.mote {
+  position: absolute;
+  bottom: -3vh;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #e8c25e;
+  filter: blur(1.5px);
+  opacity: 0;
+  animation: mote-rise 16s linear infinite;
+}
+.mote.m0 { left: 12%; animation-delay: 0s; animation-duration: 19s; }
+.mote.m1 { left: 28%; animation-delay: 5s; width: 3px; height: 3px; }
+.mote.m2 { left: 45%; animation-delay: 9s; animation-duration: 22s; }
+.mote.m3 { left: 58%; animation-delay: 2s; width: 4px; height: 4px; }
+.mote.m4 { left: 71%; animation-delay: 12s; animation-duration: 18s; }
+.mote.m5 { left: 84%; animation-delay: 7s; width: 3px; height: 3px; }
+.mote.m6 { left: 93%; animation-delay: 14s; animation-duration: 24s; }
+@keyframes mote-rise {
+  0% { transform: translateY(0); opacity: 0; }
+  8% { opacity: 0.55; }
+  70% { opacity: 0.3; }
+  100% { transform: translateY(-88vh) translateX(2vw); opacity: 0; }
+}
+
+/* ─── Dimensional, living wordmark ─── */
+
+.menu-title .wordmark {
+  transform: rotate(-2deg);
+  filter: drop-shadow(0 0.018em 0 #6b5316)
+    drop-shadow(0 0.02em 0 #2a2008)
+    drop-shadow(0 0.05em 0.02em rgba(5, 8, 10, 0.75))
+    drop-shadow(0 0 0.4em rgba(211, 168, 60, 0.3));
+  animation: mark-breathe 5.5s ease-in-out infinite;
+}
+@keyframes mark-breathe {
+  0%, 100% { transform: rotate(-2deg) translateY(0); }
+  50% { transform: rotate(-1.2deg) translateY(-0.35%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-arena,
+  .mote,
+  .menu-title .wordmark {
+    animation: none;
+  }
+}

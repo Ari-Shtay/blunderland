@@ -340,6 +340,12 @@ export function App() {
     return (
       <main class="menu">
         <div class="menu-glow" />
+        <div class="menu-arena" aria-hidden="true" />
+        <div class="menu-motes" aria-hidden="true">
+          {[...Array(7)].map((_, i) => (
+            <i key={i} class={`mote m${i}`} />
+          ))}
+        </div>
         <h1 class="menu-title">
           <Wordmark />
         </h1>
