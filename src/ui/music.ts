@@ -5,7 +5,7 @@
 // Authored-track drop-in (public/music/, .mp3 or .ogg):
 //   theme.mp3, theme2.mp3, theme3.mp3  — rotate with crossfades during play
 //   shop.mp3                           — fades in for the Night Market
-//   boss.mp3                           — fades in for boss blinds
+//   boss.mp3, boss2.mp3, boss3.mp3     — one rolled at random per boss blind
 // Any file may be absent: missing phase tracks fall back to filtering the
 // theme; zero theme files fall back to the generative layers below.
 // Suno prompt that matches the intended feel:
@@ -73,7 +73,7 @@ let lastChordKey = -1;
 interface AuthoredSet {
   themes: AudioBuffer[];
   shop: AudioBuffer | null;
-  boss: AudioBuffer | null;
+  bosses: AudioBuffer[];
 }
 interface ActiveTrack {
   src: AudioBufferSourceNode;
@@ -89,6 +89,8 @@ let themeOrder: number[] = [];
 let themeCursor = 0;
 const THEME_XFADE = 1.5; // seconds of overlap between rotating themes
 const PHASE_XFADE = 0.8;
+let bossPick: AudioBuffer | null = null; // this boss blind's rolled track
+let lastBossIdx = -1;
 
 function rand(): number {
   const [v, s] = next(rngState);
@@ -121,16 +123,18 @@ async function fetchTrack(base: string): Promise<AudioBuffer | null> {
 
 function probeAuthored(): Promise<AuthoredSet | null> {
   authoredProbe ??= (async () => {
-    const [t1, t2, t3, shop, boss] = await Promise.all([
+    const [t1, t2, t3, shop, b1, b2, b3] = await Promise.all([
       fetchTrack("theme"),
       fetchTrack("theme2"),
       fetchTrack("theme3"),
       fetchTrack("shop"),
       fetchTrack("boss"),
+      fetchTrack("boss2"),
+      fetchTrack("boss3"),
     ]);
     const themes = [t1, t2, t3].filter((b): b is AudioBuffer => b !== null);
     if (themes.length === 0) return null;
-    return { themes, shop, boss };
+    return { themes, shop, bosses: [b1, b2, b3].filter((b): b is AudioBuffer => b !== null) };
   })();
   return authoredProbe;
 }
@@ -187,7 +191,8 @@ function playNextTheme(ac: AudioContext): void {
   if (!set || !running) return;
   const buffer = set.themes[nextThemeIndex(set.themes.length)];
   const map = AUTHORED_MIX[phase];
-  const phaseHasTrack = (phase === "shop" && set.shop) || (phase === "boss" && set.boss);
+  const phaseHasTrack =
+    (phase === "shop" && set.shop) || (phase === "boss" && set.bosses.length > 0);
   const old = themeTrack;
   themeTrack = makeTrack(ac, buffer, {
     loop: false,
@@ -207,7 +212,22 @@ function playNextTheme(ac: AudioContext): void {
 function updateAuthoredPhase(ac: AudioContext): void {
   const set = authoredSet;
   if (!set) return;
-  const want = phase === "shop" ? set.shop : phase === "boss" ? set.boss : null;
+  // Each boss blind rolls its own track from the pool; the roll holds until
+  // the boss ends, then clears so the next boss rolls fresh. Cosmetic
+  // randomness only — the run's rng is never touched.
+  if (phase === "boss" && set.bosses.length > 0) {
+    if (!bossPick) {
+      let idx = Math.floor(Math.random() * set.bosses.length);
+      if (set.bosses.length > 1 && idx === lastBossIdx) {
+        idx = (idx + 1) % set.bosses.length;
+      }
+      lastBossIdx = idx;
+      bossPick = set.bosses[idx];
+    }
+  } else {
+    bossPick = null;
+  }
+  const want = phase === "shop" ? set.shop : phase === "boss" ? bossPick : null;
   const t = ac.currentTime;
   if (want) {
     if (phaseTrack?.src.buffer !== want) {
@@ -497,6 +517,7 @@ export function stop(fadeMs = 800): void {
   padVoices = null;
   themeTrack = null;
   phaseTrack = null;
+  bossPick = null;
 }
 
 export function setPhase(p: MusicPhase): void {
