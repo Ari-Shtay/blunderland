@@ -3,9 +3,9 @@
 // (menu / playing / boss / shop). Seeded per run, never touching run.rng.
 //
 // Authored-track drop-in (public/music/, .mp3 or .ogg):
-//   theme.mp3, theme2.mp3, theme3.mp3  — rotate with crossfades during play
+//   theme.mp3 ... theme4.mp3           — rotate with crossfades during play
 //   shop.mp3                           — fades in for the Night Market
-//   boss.mp3, boss2.mp3, boss3.mp3     — one rolled at random per boss blind
+//   boss.mp3 ... boss4.mp3             — one rolled at random per boss blind
 // Any file may be absent: missing phase tracks fall back to filtering the
 // theme; zero theme files fall back to the generative layers below.
 // Suno prompt that matches the intended feel:
@@ -123,18 +123,24 @@ async function fetchTrack(base: string): Promise<AudioBuffer | null> {
 
 function probeAuthored(): Promise<AuthoredSet | null> {
   authoredProbe ??= (async () => {
-    const [t1, t2, t3, shop, b1, b2, b3] = await Promise.all([
+    const [t1, t2, t3, t4, shop, b1, b2, b3, b4] = await Promise.all([
       fetchTrack("theme"),
       fetchTrack("theme2"),
       fetchTrack("theme3"),
+      fetchTrack("theme4"),
       fetchTrack("shop"),
       fetchTrack("boss"),
       fetchTrack("boss2"),
       fetchTrack("boss3"),
+      fetchTrack("boss4"),
     ]);
-    const themes = [t1, t2, t3].filter((b): b is AudioBuffer => b !== null);
+    const themes = [t1, t2, t3, t4].filter((b): b is AudioBuffer => b !== null);
     if (themes.length === 0) return null;
-    return { themes, shop, bosses: [b1, b2, b3].filter((b): b is AudioBuffer => b !== null) };
+    return {
+      themes,
+      shop,
+      bosses: [b1, b2, b3, b4].filter((b): b is AudioBuffer => b !== null),
+    };
   })();
   return authoredProbe;
 }
