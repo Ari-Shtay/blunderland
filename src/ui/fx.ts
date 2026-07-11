@@ -219,10 +219,69 @@ function crashNoise() {
   noiseBurst(b, (b.context as AudioContext).currentTime, 0.25, 1800, 0.05);
 }
 
+// ---- recorded foley drop-ins (public/sfx/<name>.mp3|ogg, CC0 Kenney packs) ----
+// Missing files (or Safari, which can't decode ogg) fall back to the synth
+// voices below — per sound, silently.
+
+const SAMPLE_NAMES = [
+  "select", "land", "capture", "shatter", "coin", "sell", "shuffle",
+  "shopbell", "clipclop", "crash", "blip", "promote", "boss", "win", "lose",
+] as const;
+type SampleName = (typeof SAMPLE_NAMES)[number];
+
+const samples = new Map<SampleName, AudioBuffer>();
+let samplesProbed = false;
+
+/** Fetch + decode whatever foley exists. Call once after the audio unlock. */
+export function preloadSfx(): void {
+  if (samplesProbed) return;
+  samplesProbed = true;
+  const b = sfxBus();
+  if (!b) return;
+  const ac = b.context as AudioContext;
+  for (const name of SAMPLE_NAMES) {
+    void (async () => {
+      for (const ext of ["mp3", "ogg"]) {
+        try {
+          const res = await fetch(`${import.meta.env.BASE_URL}sfx/${name}.${ext}`);
+          if (!res.ok || !res.headers.get("content-type")?.startsWith("audio")) continue;
+          samples.set(name, await ac.decodeAudioData(await res.arrayBuffer()));
+          return;
+        } catch {
+          /* next format, else synth fallback */
+        }
+      }
+    })();
+  }
+}
+
+/**
+ * Play a foley sample if present. Small random detune keeps rapid repeats
+ * from sounding machine-gunned. Returns false when the caller should synth.
+ */
+export function playSample(
+  name: SampleName,
+  opts: { gain?: number; rate?: number; delayMs?: number } = {},
+): boolean {
+  const buf = samples.get(name);
+  const b = bus();
+  if (!buf || !b) return false;
+  const ac = b.context as AudioContext;
+  const src = ac.createBufferSource();
+  src.buffer = buf;
+  src.playbackRate.value = opts.rate ?? 0.94 + Math.random() * 0.12;
+  const g = ac.createGain();
+  g.gain.value = opts.gain ?? 0.9;
+  src.connect(g).connect(b);
+  src.start(ac.currentTime + (opts.delayMs ?? 0) / 1000);
+  return true;
+}
+
 /** Named one-shot effects, wired to game actions in app.tsx. */
 export const sfx = {
   /** Soft wooden click — selecting a piece. */
   select() {
+    if (playSample("select", { gain: 0.5 })) return;
     const b = bus();
     if (!b) return;
     const t = (b.context as AudioContext).currentTime;
@@ -231,6 +290,7 @@ export const sfx = {
   },
   /** Landing thock; captures add a chip clink. */
   land(capture: boolean) {
+    if (playSample(capture ? "capture" : "land", { gain: capture ? 1 : 0.7 })) return;
     const b = bus();
     if (!b) return;
     const t = (b.context as AudioContext).currentTime;
@@ -240,8 +300,18 @@ export const sfx = {
       tone(b, t + 0.02, 1870, 0.06, "square", 0.014);
     }
   },
+  /** A Volatile piece gives out — glass on felt. */
+  shatter() {
+    if (playSample("shatter")) return;
+    const b = bus();
+    if (!b) return;
+    const t = (b.context as AudioContext).currentTime;
+    noiseBurst(b, t, 0.2, 3400, 0.05);
+    tone(b, t, 2100, 0.12, "triangle", 0.02, 900);
+  },
   /** Rising arp — a pawn is crowned. */
   promoteFanfare() {
+    if (playSample("promote")) return;
     const b = bus();
     if (!b) return;
     const t = (b.context as AudioContext).currentTime;
@@ -252,6 +322,7 @@ export const sfx = {
   },
   /** Low dissonant swell — a boss blind begins. */
   bossSting() {
+    if (playSample("boss")) return;
     const b = bus();
     if (!b) return;
     const ac = b.context as AudioContext;
@@ -281,6 +352,7 @@ export const sfx = {
   },
   /** Two-partial bell — entering the shop. */
   shopBell() {
+    if (playSample("shopbell", { gain: 0.6, rate: 1 })) return;
     const b = bus();
     if (!b) return;
     const t = (b.context as AudioContext).currentTime;
@@ -289,6 +361,7 @@ export const sfx = {
   },
   /** Bright double-blip — money spent on a purchase. */
   coin() {
+    if (playSample("coin", { gain: 0.7 })) return;
     const b = bus();
     if (!b) return;
     const t = (b.context as AudioContext).currentTime;
@@ -297,6 +370,7 @@ export const sfx = {
   },
   /** Paper shuffle — rerolling the stalls. */
   shuffle() {
+    if (playSample("shuffle", { rate: 1 })) return;
     const b = bus();
     if (!b) return;
     const t = (b.context as AudioContext).currentTime;
@@ -304,6 +378,7 @@ export const sfx = {
   },
   /** Cha-ching — selling a joker back. */
   sell() {
+    if (playSample("sell", { gain: 0.7 })) return;
     const b = bus();
     if (!b) return;
     const t = (b.context as AudioContext).currentTime;
@@ -313,16 +388,19 @@ export const sfx = {
   },
   /** One syllable of the White Knight's voice — squarish, pitch-jittered. */
   speakBlip() {
-    const b = bus();
-    if (!b) return;
-    const t = (b.context as AudioContext).currentTime;
     // A-minor pentatonic: the chatter sits inside the soundtrack's key.
     const SPEECH_NOTES = [220, 261.63, 293.66, 329.63, 392];
     const f = SPEECH_NOTES[Math.floor(Math.random() * SPEECH_NOTES.length)] * 2;
+    // A dropped-in blip sample gets pitch-shifted to the same scale (root A).
+    if (playSample("blip", { gain: 0.55, rate: f / 440 })) return;
+    const b = bus();
+    if (!b) return;
+    const t = (b.context as AudioContext).currentTime;
     tone(b, t, f, 0.05, "triangle", 0.06, f * 0.92);
   },
   /** Alternating hoof-falls for the knight's travels. */
   clipClop() {
+    if (playSample("clipclop", { gain: 0.4 })) return;
     const b = bus();
     if (!b) return;
     const t = (b.context as AudioContext).currentTime;
@@ -332,6 +410,10 @@ export const sfx = {
   },
   /** A proper tumble — the knight has dismounted involuntarily. */
   crash() {
+    if (playSample("crash", { rate: 0.92 })) {
+      playSample("crash", { rate: 1.08, gain: 0.6, delayMs: 70 });
+      return;
+    }
     crashNoise();
     thud(90);
   },

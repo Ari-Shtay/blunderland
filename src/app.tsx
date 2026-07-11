@@ -39,7 +39,7 @@ import { JOKER_SLOTS } from "./engine/constants";
 import { loadArtManifest } from "./ui/art";
 import { ensureCtx } from "./ui/audio";
 import { AudioSettings } from "./ui/AudioSettings";
-import { countUp, replayScore, sfx, type Popup } from "./ui/fx";
+import { countUp, preloadSfx, replayScore, sfx, type Popup } from "./ui/fx";
 import { requestLine } from "./ui/knightLines";
 import { Knight } from "./ui/Knight";
 import { music, type MusicPhase } from "./ui/music";
@@ -90,6 +90,7 @@ export function App() {
   useEffect(() => {
     const unlock = () => {
       ensureCtx();
+      preloadSfx();
       music.start();
       window.removeEventListener("pointerdown", unlock);
     };
@@ -231,7 +232,10 @@ export function App() {
         setReplaying(false);
         setLandedSq(null);
         setTimeout(() => setTally({ chips: 0, mult: 1 }), 600);
-        if (hadShatter) requestLine("shatter");
+        if (hadShatter) {
+          sfx.shatter();
+          requestLine("shatter");
+        }
         else if (hadPromote) requestLine("promotion");
       },
     });

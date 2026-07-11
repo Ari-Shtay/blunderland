@@ -20,6 +20,7 @@
 
 import { next, nextInt, seedFromString } from "../engine/rng";
 import { ensureCtx, musicBus, musicEnabled, onPrefsChange } from "./audio";
+import { playSample } from "./fx";
 
 export type MusicPhase = "menu" | "playing" | "boss" | "shop";
 
@@ -545,6 +546,8 @@ export function setPhase(p: MusicPhase): void {
 }
 
 export function sting(kind: "win" | "lose"): void {
+  stop(1200);
+  if (playSample(kind, { rate: 1 })) return;
   const ac = ensureCtx();
   const bus = musicBus();
   if (!ac || !bus || !musicEnabled()) {
