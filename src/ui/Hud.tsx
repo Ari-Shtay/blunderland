@@ -5,6 +5,7 @@ import { bossFor } from "../engine/run";
 import { OPENINGS } from "../engine/openings";
 import { PATENTS } from "../engine/patents";
 import { POSTERS } from "../engine/posters";
+import { Wordmark } from "./Wordmark";
 import { TRIALS } from "../engine/trials";
 import type { MovePattern } from "../engine/types";
 import type { RunState } from "../engine/types";
@@ -30,7 +31,7 @@ export function Hud({ run, animScore, liveChips, liveMult, replaying, onHome }: 
   return (
     <aside class="hud">
       <button class="hud-title" onClick={onHome} title="Back to the menu">
-        BLUNDER<span>LAND</span>
+        <Wordmark />
       </button>
 
       <div class={`hud-ante${run.endless ? " endless" : ""}`}>

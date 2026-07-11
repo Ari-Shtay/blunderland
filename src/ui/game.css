@@ -2528,3 +2528,45 @@ img.art-icon {
   gap: 0.7rem;
   align-items: center;
 }
+
+/* ─── The wordmark: hand-set playbill letters, one mid-blunder ─── */
+
+.wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  filter: drop-shadow(0 0.045em 0 rgba(5, 8, 10, 0.6))
+    drop-shadow(0 0 0.35em rgba(211, 168, 60, 0.3));
+}
+.wordmark .wm {
+  display: inline-block;
+  background: linear-gradient(180deg, #faf3e0 15%, #d8c9a5 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.wordmark .wm-gold {
+  background: linear-gradient(180deg, #eccb6d 12%, #b8892a 92%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.wordmark .wm-topple {
+  position: relative;
+  margin: 0 0.015em;
+}
+.wm-arcs {
+  position: absolute;
+  top: -0.28em;
+  right: -0.3em;
+  width: 0.42em;
+  height: 0.42em;
+}
+.wm-pawn {
+  /* Baseline-aligned like a letter: an SVG's bottom edge IS its baseline in
+     a baseline-aligned flex row, so the pawn stands on the line. */
+  height: 0.8em;
+  width: auto;
+  margin: 0 0.05em;
+}

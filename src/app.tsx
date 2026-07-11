@@ -24,6 +24,7 @@ import {
 import { CHARMS } from "./engine/charms";
 import type { OpeningId, RunState, Square } from "./engine/types";
 import { Board } from "./ui/Board";
+import { Wordmark } from "./ui/Wordmark";
 import { Codex } from "./ui/Codex";
 import { CharmBar } from "./ui/CharmBar";
 import { OpeningPicker } from "./ui/OpeningPicker";
@@ -340,7 +341,7 @@ export function App() {
       <main class="menu">
         <div class="menu-glow" />
         <h1 class="menu-title">
-          BLUNDER<span>LAND</span>
+          <Wordmark />
         </h1>
         <p class="menu-tag">The house plays black.</p>
         <div class="menu-actions">
