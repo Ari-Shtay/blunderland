@@ -7,7 +7,7 @@ import { JOKERS } from "../engine/jokers";
 import { OPENINGS } from "../engine/openings";
 import { TRIALS } from "../engine/trials";
 import type { MovePattern, RunState } from "../engine/types";
-import { ArtIcon } from "./ArtIcon";
+import { GameCard } from "./Card";
 
 export function RunSummary({
   run,
@@ -68,11 +68,17 @@ export function RunSummary({
             <div class="summary-jokers">
               {run.jokers.map((inst, i) => {
                 const j = JOKERS[inst.id];
+                const badge = j.stateLabel?.(inst.state ?? 0);
                 return (
-                  <div key={`${inst.id}-${i}`} class={`summary-joker rarity-${j.rarity}`} title={j.desc}>
-                    <ArtIcon dir="jokers" id={inst.id} emoji={j.emoji} class="summary-joker-art" />
-                    <span>{j.name}</span>
-                  </div>
+                  <GameCard
+                    key={`${inst.id}-${i}`}
+                    size="sm"
+                    art={{ dir: "jokers", id: inst.id, emoji: j.emoji }}
+                    name={j.name}
+                    rarity={j.rarity}
+                    stateBadge={badge}
+                    tip={{ name: j.name, rarity: j.rarity, desc: j.desc }}
+                  />
                 );
               })}
             </div>

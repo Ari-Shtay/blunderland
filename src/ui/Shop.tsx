@@ -6,7 +6,7 @@ import { CHARM_SLOTS, JOKER_SLOTS, MIN_BAG_SIZE } from "../engine/constants";
 import { CHARMS } from "../engine/charms";
 import { JOKERS } from "../engine/jokers";
 import type { RunState, ShopState } from "../engine/types";
-import { ArtIcon } from "./ArtIcon";
+import { GameCard } from "./Card";
 import { PATENTS } from "../engine/patents";
 import { ENGRAVINGS } from "../engine/constants";
 import { PIECE_URI } from "./pieces";
@@ -113,20 +113,18 @@ export function Shop(props: ShopProps) {
               const affordable =
                 (shop.couponActive || run.money >= offer.cost) && run.jokers.length < slots;
               return (
-                <button
+                <GameCard
                   key={offer.joker}
-                  class={`shop-card joker rarity-${j.rarity}${offer.sold ? " sold" : ""}`}
+                  class="shop-card"
+                  art={{ dir: "jokers", id: offer.joker, emoji: j.emoji }}
+                  name={j.name}
+                  rarity={j.rarity}
+                  sold={offer.sold}
                   disabled={offer.sold || !affordable}
                   onClick={() => props.onBuyJoker(i)}
-                >
-                  <div class={`card-rarity ${j.rarity}`}>{j.rarity}</div>
-                  <div class="card-art">
-                    <ArtIcon dir="jokers" id={offer.joker} emoji={j.emoji} class="card-emoji" />
-                  </div>
-                  <div class="card-name">{j.name}</div>
-                  <div class="card-desc">{j.desc}</div>
-                  <div class="card-cost">{offer.sold ? "SOLD" : `$${offer.cost}`}</div>
-                </button>
+                  priceTag={shop.couponActive ? "FREE" : `$${offer.cost}`}
+                  tip={{ name: j.name, rarity: j.rarity, desc: j.desc }}
+                />
               );
             })}
           </Stall>
@@ -155,87 +153,95 @@ export function Shop(props: ShopProps) {
             title={enhIsEngraving ? "Engravings" : "Enhancements"}
             note={enhIsEngraving ? "stacks with an enhancement" : undefined}
           >
-            <button
-              class={`shop-card enhancement${shop.enhancement.sold ? " sold" : ""}${targeting === "enhance" ? " targeting" : ""}`}
+            <GameCard
+              class="shop-card enhancement"
+              art={<span class="gcard-emoji">{enh.icon}</span>}
+              name={targeting === "enhance" ? "pick a piece ↓" : enh.name}
+              sold={shop.enhancement.sold}
               disabled={shop.enhancement.sold || run.money < shop.enhancement.cost}
+              selected={targeting === "enhance"}
               onClick={() => setTargeting(targeting === "enhance" ? null : "enhance")}
-            >
-              <div class="card-emoji">{enh.icon}</div>
-              <div class="card-name">{enh.name}</div>
-              <div class="card-desc">{enh.desc}</div>
-              <div class="card-cost">
-                {shop.enhancement.sold
-                  ? "SOLD"
-                  : targeting === "enhance"
-                    ? "pick a piece ↓"
-                    : `$${shop.enhancement.cost}`}
-              </div>
-            </button>
+              priceTag={`$${shop.enhancement.cost}`}
+              tip={{
+                name: enh.name,
+                desc: enh.desc,
+                lines: ["Applied to a piece in your bag below."],
+              }}
+            />
           </Stall>
 
           <Stall title="Charms" note={`${run.charms.length}/${CHARM_SLOTS} held`}>
-            <button
-              class={`shop-card charm${shop.charm.sold ? " sold" : ""}`}
+            <GameCard
+              class="shop-card charm"
+              art={{ dir: "charms", id: shop.charm.id, emoji: charmDef.emoji }}
+              name={charmDef.name}
+              sold={shop.charm.sold}
               disabled={shop.charm.sold || !charmAffordable}
               onClick={props.onBuyCharm}
-            >
-              <div class="card-art">
-                <ArtIcon dir="charms" id={shop.charm.id} emoji={charmDef.emoji} class="card-emoji" />
-              </div>
-              <div class="card-name">{charmDef.name}</div>
-              <div class="card-desc">{charmDef.desc}</div>
-              <div class="card-cost">{shop.charm.sold ? "SOLD" : `$${shop.charm.cost}`}</div>
-            </button>
+              priceTag={`$${shop.charm.cost}`}
+              tip={{
+                name: charmDef.name,
+                desc: charmDef.desc,
+                lines: [
+                  `Single use, ${charmDef.phase === "any" ? "anytime" : `during ${charmDef.phase === "playing" ? "a blind" : "the shop"}`}.`,
+                ],
+              }}
+            />
           </Stall>
 
           {shop.patent && patentDef && (
             <Stall title="Patents" note="the Knight's inventions; permanent, one per boss market">
-              <button
-                class={`shop-card patent${shop.patent.sold ? " sold" : ""}`}
+              <GameCard
+                class="shop-card patent"
+                art={<span class="gcard-emoji">{patentDef.emoji}</span>}
+                name={patentDef.name}
+                sold={shop.patent.sold}
                 disabled={shop.patent.sold || run.money < shop.patent.cost}
                 onClick={props.onBuyPatent}
-              >
-                <div class="card-emoji">{patentDef.emoji}</div>
-                <div class="card-name">{patentDef.name}</div>
-                <div class="card-desc">{patentDef.desc}</div>
-                <div class="card-cost">
-                  {shop.patent.sold ? (
-                    "SOLD"
-                  ) : shop.patent.cost < patentBase ? (
+                priceTag={
+                  shop.patent.cost < patentBase ? (
                     <>
                       <s>${patentBase}</s> ${shop.patent.cost}
                     </>
                   ) : (
                     `$${shop.patent.cost}`
-                  )}
-                </div>
-              </button>
+                  )
+                }
+                tip={{
+                  name: patentDef.name,
+                  desc: patentDef.desc,
+                  lines: ["Permanent for the rest of the run."],
+                }}
+              />
             </Stall>
           )}
 
           <Stall title="Services">
-            <button
+            <GameCard
               class="shop-card service"
+              art={<span class="gcard-emoji">🎲</span>}
+              name="Reroll"
               disabled={!freeReroll && run.money < shop.rerollCost}
               onClick={props.onReroll}
-            >
-              <div class="card-emoji">🎲</div>
-              <div class="card-name">Reroll</div>
-              <div class="card-desc">Restock every stall with new wares</div>
-              <div class="card-cost">{freeReroll ? "FREE" : `$${shop.rerollCost}`}</div>
-            </button>
-            <button
-              class={`shop-card service${targeting === "remove" ? " targeting" : ""}`}
+              priceTag={freeReroll ? "FREE" : `$${shop.rerollCost}`}
+              tip={{
+                name: "Reroll",
+                desc: "Restock every stall with new wares. Each paid reroll costs $1 more; the price resets next shop.",
+              }}
+            />
+            <GameCard
+              class="shop-card service"
+              art={<span class="gcard-emoji">🕳️</span>}
+              name={targeting === "remove" ? "pick a piece ↓" : "Banish"}
               disabled={!canRemove}
+              selected={targeting === "remove"}
               onClick={() => setTargeting(targeting === "remove" ? null : "remove")}
-            >
-              <div class="card-emoji">🕳️</div>
-              <div class="card-name">Banish</div>
-              <div class="card-desc">Remove a piece from your bag forever</div>
-              <div class="card-cost">
-                {targeting === "remove" ? "pick a piece ↓" : `$${shop.removeCost}`}
-              </div>
-            </button>
+              priceTag={`$${shop.removeCost}`}
+              tip={{
+                name: "Banish",
+                desc: "Remove a piece from your bag forever. Each banish raises the price for the rest of the run.",
+              }}
+            />
           </Stall>
         </div>
 
@@ -281,15 +287,22 @@ export function Shop(props: ShopProps) {
               {run.jokers.map((inst, i) => {
                 const j = JOKERS[inst.id];
                 return (
-                  <button
+                  <GameCard
                     key={inst.id}
+                    size="sm"
                     class="joker-sell"
-                    title={`${j.name} — ${j.desc}`}
+                    art={{ dir: "jokers", id: inst.id, emoji: j.emoji }}
+                    name={j.name}
+                    rarity={j.rarity}
                     onClick={() => props.onSellJoker(i)}
-                  >
-                    <span class="joker-sell-emoji">{j.emoji}</span>
-                    <span class="joker-sell-price">Sell ${Math.floor(j.cost / 2)}</span>
-                  </button>
+                    priceTag={`Sell $${Math.floor(j.cost / 2)}`}
+                    tip={{
+                      name: j.name,
+                      rarity: j.rarity,
+                      desc: j.desc,
+                      lines: [`Click to sell for $${Math.floor(j.cost / 2)}.`],
+                    }}
+                  />
                 );
               })}
             </div>

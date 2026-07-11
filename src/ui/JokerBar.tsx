@@ -1,7 +1,7 @@
 import { JOKER_SLOTS } from "../engine/constants";
 import { JOKERS } from "../engine/jokers";
 import type { JokerInstance } from "../engine/types";
-import { ArtIcon } from "./ArtIcon";
+import { GameCard } from "./Card";
 
 export interface JokerBarProps {
   jokers: JokerInstance[];
@@ -16,22 +16,26 @@ export function JokerBar({ jokers, firing }: JokerBarProps) {
         const j = JOKERS[inst.id];
         const badge = j.stateLabel?.(inst.state ?? 0);
         return (
-          <div
+          <GameCard
             key={inst.id}
-            class={`joker-card rarity-${j.rarity}${firing === j.name ? " firing" : ""}`}
-          >
-            <div class="joker-art">
-              <ArtIcon dir="jokers" id={inst.id} emoji={j.emoji} class="joker-emoji" />
-            </div>
-            <div class="joker-name">{j.name}</div>
-            {badge && <div class="joker-state">{badge}</div>}
-            <div class="joker-tip">{j.desc}</div>
-          </div>
+            size="sm"
+            class={`joker-card${firing === j.name ? " firing" : ""}`}
+            art={{ dir: "jokers", id: inst.id, emoji: j.emoji }}
+            name={j.name}
+            rarity={j.rarity}
+            stateBadge={badge}
+            tip={{
+              name: j.name,
+              rarity: j.rarity,
+              desc: j.desc,
+              lines: badge ? [`Currently ${badge}`] : undefined,
+            }}
+          />
         );
       })}
       {Array.from({ length: JOKER_SLOTS - jokers.length }, (_, i) => (
-        <div key={`empty-${i}`} class="joker-card empty">
-          <div class="joker-emoji dim">♟</div>
+        <div key={`empty-${i}`} class="gcard sm empty-slot">
+          <div class="gcard-emoji dim">♟</div>
         </div>
       ))}
     </div>

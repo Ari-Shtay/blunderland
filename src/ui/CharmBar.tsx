@@ -3,7 +3,7 @@
 
 import { CHARMS } from "../engine/charms";
 import type { CharmId } from "../engine/types";
-import { ArtIcon } from "./ArtIcon";
+import { GameCard } from "./Card";
 
 export interface CharmBarProps {
   charms: CharmId[];
@@ -22,16 +22,21 @@ export function CharmBar({ charms, armed, phase, onCharmClick }: CharmBarProps) 
         const c = CHARMS[id];
         const usable = c.phase === "any" || c.phase === phase;
         return (
-          <button
+          <GameCard
             key={`${id}-${i}`}
-            class={`charm-card${armed === i ? " targeting" : ""}`}
+            size="sm"
+            class="charm-card"
+            art={{ dir: "charms", id, emoji: c.emoji }}
+            name={armed === i ? "pick a piece…" : c.name}
             disabled={!usable}
+            selected={armed === i}
             onClick={() => onCharmClick(i)}
-          >
-            <ArtIcon dir="charms" id={id} emoji={c.emoji} class="charm-emoji" />
-            <span class="charm-name">{armed === i ? "pick a piece…" : c.name}</span>
-            <span class="charm-tip">{c.desc}</span>
-          </button>
+            tip={{
+              name: c.name,
+              desc: c.desc,
+              lines: [c.target === "boardPiece" ? "Click, then pick a piece on the board." : "Fires on click."],
+            }}
+          />
         );
       })}
     </div>

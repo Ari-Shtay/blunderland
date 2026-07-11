@@ -24,6 +24,7 @@ import {
 import { CHARMS } from "./engine/charms";
 import type { OpeningId, RunState, Square } from "./engine/types";
 import { Board } from "./ui/Board";
+import { TipLayer } from "./ui/Card";
 import { Wordmark } from "./ui/Wordmark";
 import { Codex } from "./ui/Codex";
 import { CharmBar } from "./ui/CharmBar";
@@ -550,6 +551,7 @@ export function App() {
           }}
         />
       )}
+      <TipLayer />
       <Knight
         tip={tip}
         onDismissTip={dismissTip}

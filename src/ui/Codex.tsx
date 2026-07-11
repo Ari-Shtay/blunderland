@@ -8,42 +8,38 @@ import { OPENINGS, OPENING_IDS } from "../engine/openings";
 import { PATENTS, PATENT_IDS } from "../engine/patents";
 import { POSTERS, POSTER_IDS } from "../engine/posters";
 import { loadCodex } from "../save";
-import { ArtIcon } from "./ArtIcon";
+import { GameCard } from "./Card";
+
+import type { Rarity } from "../engine/types";
 
 function Entry(props: {
   found: boolean;
   emoji: string;
   name: string;
   desc: string;
-  rarity?: string;
+  rarity?: Rarity;
   art?: { dir: "jokers" | "charms" | "openings"; id: string };
 }) {
   if (!props.found) {
     return (
-      <div class="codex-card unfound" title="Not yet encountered">
-        <span class="codex-emoji">?</span>
-        <span class="codex-name">???</span>
+      <div class="gcard sm unfound">
+        <span class="gcard-art"><span class="gcard-emoji dim">?</span></span>
+        <span class="gcard-plate">???</span>
       </div>
     );
   }
   return (
-    <div
-      class={`codex-card${props.rarity ? ` rarity-${props.rarity}` : ""}`}
-      title={props.desc}
-    >
-      {props.art ? (
-        <ArtIcon
-          dir={props.art.dir}
-          id={props.art.id}
-          emoji={props.emoji}
-          class="codex-emoji"
-        />
-      ) : (
-        <span class="codex-emoji">{props.emoji}</span>
-      )}
-      <span class="codex-name">{props.name}</span>
-      <span class="codex-desc">{props.desc}</span>
-    </div>
+    <GameCard
+      size="sm"
+      art={
+        props.art
+          ? { dir: props.art.dir, id: props.art.id, emoji: props.emoji }
+          : <span class="gcard-emoji">{props.emoji}</span>
+      }
+      name={props.name}
+      rarity={props.rarity}
+      tip={{ name: props.name, rarity: props.rarity, desc: props.desc }}
+    />
   );
 }
 

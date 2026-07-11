@@ -2652,3 +2652,292 @@ img.art-icon {
     animation: none;
   }
 }
+
+/* ═══ The card system: material rarity, art-forward faces ═══ */
+
+.gcard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  padding: 0;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  overflow: visible;
+}
+.gcard.lg { width: 118px; height: 158px; }
+.gcard.sm { width: 78px; height: 104px; }
+.gcard:disabled { cursor: default; opacity: 0.55; }
+.gcard:not(:disabled):hover,
+.gcard.armed {
+  transform: translateY(-6px) rotate(-1deg) scale(1.04);
+  z-index: 5;
+}
+.gcard-art {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 8px 8px 0 0;
+}
+.gcard.lg .gcard-emoji { font-size: 3rem; }
+.gcard.sm .gcard-emoji { font-size: 1.9rem; }
+.gcard-emoji {
+  filter: grayscale(1) sepia(0.8) saturate(2.6) brightness(1.1)
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+img.gcard-emoji, .gcard-art img.art-icon {
+  filter: none;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gcard-plate {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.15;
+  min-height: 2.05em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.22rem 0.25rem 0.3rem;
+  color: var(--ivory);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0 0 8px 8px;
+  background: rgba(6, 10, 13, 0.55);
+}
+.gcard.sm .gcard-plate { font-size: 0.52rem; padding: 0.22rem 0.2rem 0.26rem; }
+.gcard-state {
+  position: absolute;
+  top: -7px;
+  left: -7px;
+  background: var(--panel);
+  border: 1px solid var(--gold-soft);
+  color: var(--gold);
+  border-radius: 8px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.1rem 0.32rem;
+  z-index: 2;
+}
+.gcard-price {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #e8c25e, #b8892a);
+  color: #241a05;
+  font-weight: 800;
+  font-size: 0.72rem;
+  border-radius: 7px;
+  padding: 0.12rem 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  z-index: 2;
+  white-space: nowrap;
+}
+.gcard-price s { opacity: 0.6; margin-right: 0.25em; font-weight: 600; }
+.gcard-sold {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  color: var(--ivory-dim);
+  background: rgba(6, 10, 13, 0.72);
+  border-radius: 10px;
+  z-index: 3;
+}
+.gcard.sold { pointer-events: none; }
+
+/* ── Material tiers: craftsmanship IS rarity ── */
+
+/* No rarity (charms, services): plain trinket parchment. */
+.gcard.r-none {
+  background: linear-gradient(170deg, #20303a, #131f27);
+  border: 1px solid rgba(200, 210, 220, 0.16);
+}
+
+/* COMMON — parchment. A pauper's card: plain, matte, still. */
+.gcard.r-common {
+  background: linear-gradient(170deg, #28323a, #171f26);
+  border: 1px solid rgba(226, 213, 184, 0.22);
+}
+
+/* UNCOMMON — blue steel. Riveted corners, a workman's pride. */
+.gcard.r-uncommon {
+  background: linear-gradient(170deg, #1e3040, #12202c);
+  border: 1px solid rgba(94, 178, 255, 0.45);
+  background-image:
+    radial-gradient(circle 2.5px at 7px 7px, rgba(150, 200, 245, 0.75) 40%, transparent 45%),
+    radial-gradient(circle 2.5px at calc(100% - 7px) 7px, rgba(150, 200, 245, 0.75) 40%, transparent 45%),
+    radial-gradient(circle 2.5px at 7px calc(100% - 7px), rgba(150, 200, 245, 0.75) 40%, transparent 45%),
+    radial-gradient(circle 2.5px at calc(100% - 7px) calc(100% - 7px), rgba(150, 200, 245, 0.75) 40%, transparent 45%),
+    linear-gradient(170deg, #1e3040, #12202c);
+  box-shadow: inset 0 0 0 1px rgba(94, 178, 255, 0.12);
+}
+
+/* RARE — amethyst foil. Filigree corners and a living shimmer. */
+.gcard.r-rare {
+  background: linear-gradient(170deg, #2b2038, #171225);
+  border: 1px solid rgba(199, 146, 234, 0.55);
+  box-shadow:
+    inset 0 0 0 1px rgba(199, 146, 234, 0.18),
+    inset 0 0 18px rgba(199, 146, 234, 0.12),
+    0 0 10px rgba(199, 146, 234, 0.12);
+}
+.gcard.r-rare::before,
+.gcard.r-legendary::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 7px;
+  pointer-events: none;
+  border: 1px solid rgba(199, 146, 234, 0.35);
+  -webkit-mask-image: radial-gradient(circle at 0 0, #000 22px, transparent 23px),
+    radial-gradient(circle at 100% 0, #000 22px, transparent 23px),
+    radial-gradient(circle at 0 100%, #000 22px, transparent 23px),
+    radial-gradient(circle at 100% 100%, #000 22px, transparent 23px);
+  mask-image: radial-gradient(circle at 0 0, #000 22px, transparent 23px),
+    radial-gradient(circle at 100% 0, #000 22px, transparent 23px),
+    radial-gradient(circle at 0 100%, #000 22px, transparent 23px),
+    radial-gradient(circle at 100% 100%, #000 22px, transparent 23px);
+}
+.gcard.r-rare::after,
+.gcard.r-legendary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.09) 45%,
+    rgba(199, 146, 234, 0.16) 50%,
+    rgba(255, 255, 255, 0.09) 55%,
+    transparent 70%
+  );
+  background-size: 300% 300%;
+  animation: foil-sweep 5s ease-in-out infinite;
+}
+@keyframes foil-sweep {
+  0%, 100% { background-position: 120% 120%; }
+  50% { background-position: -20% -20%; }
+}
+
+/* LEGENDARY — gold leaf. A museum piece that breathes. */
+.gcard.r-legendary {
+  background: linear-gradient(170deg, #3a2f14, #1e1708);
+  border: 1px solid rgba(232, 194, 94, 0.8);
+  animation: leg-breathe 3.5s ease-in-out infinite;
+}
+.gcard.r-legendary::before {
+  border-color: rgba(232, 194, 94, 0.55);
+}
+.gcard.r-legendary::after {
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 236, 170, 0.14) 45%,
+    rgba(232, 194, 94, 0.22) 50%,
+    rgba(255, 236, 170, 0.14) 55%,
+    transparent 70%
+  );
+  background-size: 300% 300%;
+}
+@keyframes leg-breathe {
+  0%, 100% { box-shadow: 0 0 10px rgba(232, 194, 94, 0.25), inset 0 0 14px rgba(232, 194, 94, 0.1); }
+  50% { box-shadow: 0 0 26px rgba(232, 194, 94, 0.5), inset 0 0 20px rgba(232, 194, 94, 0.18); }
+}
+
+/* ── The tooltip ── */
+
+.card-tip {
+  position: fixed;
+  z-index: 80;
+  width: 230px;
+  background: linear-gradient(180deg, #16242d, #0c161c);
+  border: 1px solid var(--gold-soft);
+  border-radius: 10px;
+  padding: 0.6rem 0.7rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  animation: tip-rise 0.14s ease-out both;
+}
+@keyframes tip-rise {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+.card-tip.below { animation-name: tip-drop; }
+@keyframes tip-drop {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+.card-tip-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+}
+.card-tip-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--gold);
+}
+.card-tip-rarity {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.08rem 0.4rem;
+  border-radius: 6px;
+}
+.card-tip-rarity.common { background: rgba(226, 213, 184, 0.14); color: var(--ivory); }
+.card-tip-rarity.uncommon { background: rgba(94, 178, 255, 0.18); color: #9fd0ff; }
+.card-tip-rarity.rare { background: rgba(199, 146, 234, 0.2); color: #d9b8f5; }
+.card-tip-rarity.legendary { background: rgba(232, 194, 94, 0.22); color: #f0d489; }
+.card-tip-desc {
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: var(--ivory);
+}
+.card-tip-line {
+  margin-top: 0.3rem;
+  font-size: 0.68rem;
+  color: var(--ivory-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gcard.r-rare::after,
+  .gcard.r-legendary::after,
+  .gcard.r-legendary {
+    animation: none;
+  }
+}
+
+.gcard.empty-slot,
+.gcard.unfound {
+  border: 1px dashed rgba(226, 213, 184, 0.18);
+  background: rgba(255, 255, 255, 0.015);
+  cursor: default;
+  opacity: 0.55;
+}
+.gcard .dim { opacity: 0.35; }
+.gcard.firing {
+  box-shadow: 0 0 18px rgba(232, 194, 94, 0.65) !important;
+  transform: translateY(-4px) scale(1.05);
+}
+.gcard.armed {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
